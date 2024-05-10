@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Form Thông Tin WebSocket</title>
+<script>
+// Khi window tải xong, chúng ta sẽ thiết lập WebSocket
+window.onload = function() {
+  // Tạo một đối tượng WebSocket mới
+  const ws = new WebSocket('ws://localhost:3000');
+  ws.onopen = function() {
+    console.log('Connected to the server');
+  };
+  ws.onmessage = function(event) {
+    console.log('Message from server: ' + event.data);
+  };
+  // Gắn sự kiện khi form được submit
+  document.getElementById('infoForm').onsubmit = function(event) {
+    // Ngăn không cho form thực hiện hành động mặc định (gửi dữ liệu theo phương thức truyền thống)
+    event.preventDefault();
+
+    // Lấy dữ liệu từ form
+    var creator = document.getElementById('creator').value;
+    var description = document.getElementById('description').value;
+    var difficult = document.getElementById('difficult').value;
+    var reward = document.getElementById('reward').value;
+
+    // Tạo một đối tượng để gửi
+    var data = {
+      creator: creator,
+      description: description,
+      difficult: difficult,
+      reward: reward
+    };
+
+    // Gửi dữ liệu dưới dạng chuỗi JSON qua WebSocket
+    ws.send(JSON.stringify(data));
+
+    // Xóa trường thông tin sau khi gửi
+    this.reset();
+  };
+};
+</script>
+</head>
+<body>
+
+<h2>Form Nhập Thông Tin qua WebSocket</h2>
+
+<form id="infoForm">
+  <label for="creator">Creator:</label><br>
+  <input type="text" id="creator" name="creator"><br>
+  <label for="description">Description:</label><br>
+  <input type="text" id="description" name="description"><br>
+  <label for="difficult">Difficult:</label><br>
+  <input type="text" id="difficult" name="difficult"><br>
+  <label for="reward">Reward:</label><br>
+  <input type="text" id="reward" name="reward"><br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+</body>
+</html>

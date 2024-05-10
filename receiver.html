@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Hiển Thị Thông Tin</title>
+<script>
+window.onload = function() {
+  const ws = new WebSocket('ws://localhost:3001');
+  ws.onopen = function() {
+    console.log('Connected to the server');
+  };
+  ws.onmessage = function(event) {
+    var message = JSON.parse(event.data);
+    // if(message.type === 'send')
+    {
+      console.log(message);
+      document.getElementById('display').innerHTML =
+        'ID: ' + message.content.id + '<br>'
+        +
+        'Creator: ' + message.content.creator + '<br>' +
+        'Description: ' + message.content.description + '<br>' +
+        'Difficult: ' + message.content.difficult + '<br>' +
+        'Reward: ' + message.content.reward;
+    //     message.content.forEach(function(task) {
+    //   var taskDiv = document.createElement('div');
+    //   taskDiv.innerHTML = 
+    //     'ID Task: ' + task.idTask + '<br>' +
+    //     'Creator: ' + task.creator + '<br>' +
+    //     'Description: ' + task.description + '<br>' +
+    //     'Difficult: ' + task.difficult + '<br>' +
+    //     'Reward: ' + task.reward;
+    //   displayDiv.appendChild(taskDiv);
+    // });
+    }
+  };
+
+  document.getElementById('responseForm').onsubmit = function(event) {
+    event.preventDefault();
+    var id = document.getElementById('id').value;
+    var assignee = document.getElementById('assignee').value;
+    var solution = document.getElementById('solution').value;
+
+    // var data = {
+    //   type: 'response',
+    //   content: {
+    //     idTask: id,
+    //     assignee: assignee,
+    //     solution: solution
+    //   }
+    // };
+    var data = {
+      
+      id: id,
+      assignee: assignee,
+      solution: solution
+    };
+
+    ws.send(JSON.stringify(data));
+    this.reset();
+  };
+};
+</script>
+</head>
+<body>
+
+<h2>Thông Tin Được Nhận qua WebSocket</h2>
+<div id="display"></div>
+
+<h2>Form Phản Hồi Thông Tin</h2>
+
+<form id="responseForm">
+  <label for="id">ID Task:</label><br>
+  <input type="text" id="id" name="id"><br>
+  <label for="assignee">Assignee:</label><br>
+  <input type="text" id="assignee" name="assignee"><br>
+  <label for="solution">Solution:</label><br>
+  <input type="text" id="solution" name="solution"><br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+</body>
+</html>
