@@ -12,7 +12,20 @@ window.onload = function() {
     console.log('Connected to the server');
   };
   ws.onmessage = function(event) {
-    console.log('Message from server: ' + event.data);
+    
+    var message = JSON.parse(event.data);
+    if(message.type === 'finishtask')
+    {
+      document.getElementById('display').innerHTML =
+        'ID: ' + message.content.id + '<br>' +
+        'Creator: ' + message.content.creator + '<br>' +
+        'Assignee: ' + message.content.assignee + '<br>' +
+        'Description: ' + message.content.description + '<br>' +
+        'Difficult: ' + message.content.diff + '<br>' +
+        'Reward: ' + message.content.reward;
+    }
+    if(message.type === 'returnWallet')
+      document.getElementById('balance').innerHTML = 'Balance: ' + message.balance;
   };
   // Gắn sự kiện khi form được submit
   document.getElementById('infoForm').onsubmit = function(event) {
@@ -27,10 +40,13 @@ window.onload = function() {
 
     // Tạo một đối tượng để gửi
     var data = {
-      creator: creator,
-      description: description,
-      difficult: difficult,
-      reward: reward
+      type: 'sendTask',
+      content : {
+        creator: creator,
+        description: description,
+        difficult: difficult,
+        reward: reward
+      }
     };
 
     // Gửi dữ liệu dưới dạng chuỗi JSON qua WebSocket
@@ -38,6 +54,17 @@ window.onload = function() {
 
     // Xóa trường thông tin sau khi gửi
     this.reset();
+  };
+  document.getElementById('walletForm').onsubmit = function(event) {
+    event.preventDefault();
+    var address = document.getElementById('address').value;
+
+    var data = {
+      type: 'checkWallet',
+      address : address
+    };
+
+    ws.send(JSON.stringify(data));
   };
 };
 </script>
@@ -57,6 +84,17 @@ window.onload = function() {
   <input type="text" id="reward" name="reward"><br><br>
   <input type="submit" value="Submit">
 </form> 
+
+<h3>Task đã được thực hiện</h3>
+<div id="display"></div>
+
+<form id="walletForm"">
+  <label for="address">Adress:</label><br>
+  <input type="text" id="address" name="address"><br>
+  <input type="submit" value="Submit">
+</form>
+
+<div id="balance"></div>
 
 </body>
 </html>

@@ -10,27 +10,31 @@ window.onload = function() {
     console.log('Connected to the server');
   };
   ws.onmessage = function(event) {
+    
     var message = JSON.parse(event.data);
-    // if(message.type === 'send')
+    if(message.type === 'sendtask')
     {
-      console.log(message);
       document.getElementById('display').innerHTML =
         'ID: ' + message.content.id + '<br>'
         +
         'Creator: ' + message.content.creator + '<br>' +
         'Description: ' + message.content.description + '<br>' +
-        'Difficult: ' + message.content.difficult + '<br>' +
+        'Difficult: ' + message.content.diff + '<br>' +
         'Reward: ' + message.content.reward;
     //     message.content.forEach(function(task) {
     //   var taskDiv = document.createElement('div');
     //   taskDiv.innerHTML = 
-    //     'ID Task: ' + task.idTask + '<br>' +
+    //     'ID Task: ' + task.id + '<br>' +
     //     'Creator: ' + task.creator + '<br>' +
     //     'Description: ' + task.description + '<br>' +
-    //     'Difficult: ' + task.difficult + '<br>' +
+    //     'Difficult: ' + task.diff + '<br>' +
     //     'Reward: ' + task.reward;
     //   displayDiv.appendChild(taskDiv);
     // });
+    }
+    if(message.type === 'returnWallet')
+    {
+      document.getElementById('balance').innerHTML = 'Balance: ' + message.balance;
     }
   };
 
@@ -49,14 +53,28 @@ window.onload = function() {
     //   }
     // };
     var data = {
-      
-      id: id,
-      assignee: assignee,
-      solution: solution
+      type: 'acceptTask',
+      content : 
+      {
+        id: id,
+        assignee: assignee,
+        solution: solution
+      }
     };
 
     ws.send(JSON.stringify(data));
     this.reset();
+  };
+  document.getElementById('walletForm').onsubmit = function(event) {
+    event.preventDefault();
+    var address = document.getElementById('address').value;
+
+    var data = {
+      type: 'checkWallet',
+      address : address
+    };
+
+    ws.send(JSON.stringify(data));
   };
 };
 </script>
@@ -76,7 +94,15 @@ window.onload = function() {
   <label for="solution">Solution:</label><br>
   <input type="text" id="solution" name="solution"><br><br>
   <input type="submit" value="Submit">
-</form> 
+</form>
+
+<form id="walletForm"">
+  <label for="address">Adress:</label><br>
+  <input type="text" id="address" name="address"><br>
+  <input type="submit" value="Submit">
+</form>
+
+<div id="balance"></div>
 
 </body>
 </html>

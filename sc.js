@@ -1,9 +1,27 @@
-const { Wallet } = require("./Blockchain");
-
+const fs = require('fs');
 class TaskContract {
 	constructor() {
-			this.tasks = {};
-			this.nextTaskId = 0;
+			this.tasks;
+			this.nextTaskId;
+	}
+	LoadData()
+	{
+		fs.readFile('contract.json', 'utf8', (err, data) => {
+      if (err) {
+        console.error('Lỗi khi đọc file:', err);
+        return;
+      }
+      if(data)
+				{
+        	this.tasks = JSON.parse(data);
+					this.nextTaskId = Object.keys(this.tasks).length;
+				}
+      else
+        {
+					this.tasks = {};
+					this.nextTaskId = 0;
+				}
+    });
 	}
 	createTask(creator,description, diff, reward) {
 			if (diff <= 0) {
@@ -23,8 +41,8 @@ class TaskContract {
 					status: 0 // 0: Created, 1: Assigned, 2: Completed, 3: Paid
 			};
 			////////////////
-			sendTask(`TaskCreated: ${taskId}, ${description}, ${creator}, difficult: ${diff}, reward: ${reward}`);
-			reciveTask();
+			// sendTask(`TaskCreated: ${taskId}, ${description}, ${creator}, difficult: ${diff}, reward: ${reward}`);
+			// reciveTask();
 			////////////////
 			console.log(`TaskCreated: ${taskId}, ${description}, ${creator}, difficult: ${diff}, reward: ${reward}`);
 	}
@@ -59,8 +77,8 @@ class TaskContract {
 			task.status = 2;
 
 			console.log(`TaskCompleted: ${taskId}, ${task.assignee},${solution}`);
-			sendResponse(`TaskCompleted: ${taskId}, assigneeAddress`);
-			reviceResponse();
+			// sendResponse(`TaskCompleted: ${taskId}, assigneeAddress`);
+			// reviceResponse();
 	}
 
 	payReward(taskId,creatorid,balancecreator) {
@@ -77,6 +95,14 @@ class TaskContract {
 
 			// Giả định việc chuyển tiền
 			console.log(`TaskPaid: ${taskId}, ${task.assignee} nhan duoc ${task.reward}`);
+	}
+	saveData()
+	{
+		const data = JSON.stringify(this.tasks, null, 2);
+    fs.writeFile('contract.json', data, 'utf8', err => {
+      if (err) throw err;
+      console.log('Saved Tasks');
+    });
 	}
 }
 module.exports.TaskContract = TaskContract;
