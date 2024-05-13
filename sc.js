@@ -4,6 +4,7 @@ class TaskContract {
 			this.tasks;
 			this.nextTaskId;
 	}
+	// load data in json file
 	LoadData()
 	{
 		fs.readFile('contract.json', 'utf8', (err, data) => {
@@ -23,6 +24,7 @@ class TaskContract {
 				}
     });
 	}
+	//create task in contract
 	createTask(creator,description, diff, reward) {
 			if (diff <= 0) {
 					throw new Error("Difficulty must be greater than 0");
@@ -34,22 +36,18 @@ class TaskContract {
 			this.tasks[taskId] = {
 					id: taskId,
 					description: description,
-					creator: creator, // Thay thế bằng địa chỉ thực của người tạo
+					creator: creator,
 					assignee: null,
 					diff: diff,
-					reward: reward, // Giá trị giả định
+					reward: reward, 
 					status: 0 // 0: Created, 1: Assigned, 2: Completed, 3: Paid
 			};
-			////////////////
-			// sendTask(`TaskCreated: ${taskId}, ${description}, ${creator}, difficult: ${diff}, reward: ${reward}`);
-			// reciveTask();
-			////////////////
 			console.log(`TaskCreated: ${taskId}, ${description}, ${creator}, difficult: ${diff}, reward: ${reward}`);
 	}
-
+	// assign task in contract
 	assignTask(taskId, assignee,creatorid) {
 			const task = this.tasks[taskId];
-			if (task.creator !== creatorid) { // Thay thế bằng địa chỉ thực của người tạo
+			if (task.creator !== creatorid) { 
 					throw new Error("Only creator can assign task");
 			}
 			if (task.status !== 0) {
@@ -64,10 +62,10 @@ class TaskContract {
 
 			console.log(`TaskAssigned: ${taskId}, ${assignee}`);
 	}
-
+	// accept task in contract
 	acceptTask(taskId, solution,assigneeid) {
 			const task = this.tasks[taskId];
-			if (task.assignee !== assigneeid) { // Thay thế bằng địa chỉ thực của người nhận
+			if (task.assignee !== assigneeid) { 
 					throw new Error("Only assignee can accept task");
 			}
 			if (task.status !== 1) {
@@ -77,25 +75,24 @@ class TaskContract {
 			task.status = 2;
 
 			console.log(`TaskCompleted: ${taskId}, ${task.assignee},${solution}`);
-			// sendResponse(`TaskCompleted: ${taskId}, assigneeAddress`);
-			// reviceResponse();
 	}
-
+	// pay reward after finished task
 	payReward(taskId,creatorid,balancecreator) {
 			const task = this.tasks[taskId];
-			if (task.creator !== creatorid) { // Thay thế bằng địa chỉ thực của người tạo
+			if (task.creator !== creatorid) { 
 					throw new Error("Only creator can pay reward");
 			}
 			if (task.status !== 2) {
 					throw new Error("Task must be completed");
 			}
-			if (task.reward > balancecreator) { // Thay thế bằng số dư thực tế của người tạo
+			if (task.reward > balancecreator) { 
 					throw new Error("Insufficient balance in contract");
 			}
 
 			// Giả định việc chuyển tiền
 			console.log(`TaskPaid: ${taskId}, ${task.assignee} nhan duoc ${task.reward}`);
 	}
+	// save Data
 	saveData()
 	{
 		const data = JSON.stringify(this.tasks, null, 2);
@@ -127,7 +124,3 @@ function reviceResponse(){
 		}
 	});
 }
-// Sử dụng
-// const taskContract = new TaskContract();
-// taskContract.createTask("Than","1+1 ?", 1, 100); // Giả định
-// taskContract.createTask("Than","1+2 ?", 1, 150);

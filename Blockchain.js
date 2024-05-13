@@ -1,14 +1,6 @@
 const SHA256 = require('crypto-js/sha256');
 const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
-// class Wallet{
-//   constructor(){
-//     this.wallet = {
-//       'than': 100,
-//       'thoang': 100
-//       };
-//   }
-// }
 class Transaction {
   /**
    * @param {string} fromAddress
@@ -137,23 +129,7 @@ class Block {
 }
 
 class Blockchain {
-  // constructor() {
-  //   this.chain = [this.createGenesisBlock()];
-  //   this.difficulty = 2;
-  //   this.pendingTransactions = [];
-  //   this.miningReward = 100;
-  // }
-  /**
-   * 
-   * @param {number} difficulty 
-   * @param {number} miningReward 
-   */
-  // constructor(difficulty,miningReward) {
-  //   this.chain = [this.createGenesisBlock()];
-  //   this.difficulty = difficulty;
-  //   this.pendingTransactions = [];
-  //   this.miningReward = miningReward;
-  // }
+  
   constructor() {
     this.chain = [this.createGenesisBlock()];
     this.pendingTransactions = [];
@@ -315,74 +291,3 @@ class Blockchain {
 module.exports.Blockchain = Blockchain;
 module.exports.Block = Block;
 module.exports.Transaction = Transaction;
-
-// let Tcoin = new Blockchain();
-
-// // Tcoin.addTransaction(new Transaction('address1', 'add2',100));
-// // Tcoin.addTransaction(new Transaction('add2', 'address1',50));
-
-// console.log('\n Starting the miner...');
-// Tcoin.minePendingTransactions('tcoin-address');
-
-// console.log('\n Balance of thoang is', Tcoin.getBalanceOfAddress('tcoin-address'))
-///////////////////////////////////////
-//////////////////////////
-/*
-// Trên Client A
-const peerConnectionA = new RTCPeerConnection();
-
-// Tạo một data channel
-const dataChannelA = peerConnectionA.createDataChannel('channelA');
-
-dataChannelA.onopen = function(event) {
-  console.log('Data channel is open and ready to be used.');
-};
-
-dataChannelA.onmessage = function(event) {
-  console.log('Received message from Client B:', event.data);
-};
-
-// Tạo offer và gửi đến Client B
-peerConnectionA.createOffer().then(offer => {
-  return peerConnectionA.setLocalDescription(offer);
-}).then(() => {
-  // Gửi offer đến Client B qua signaling server (cần phải có)
-  sendToSignalingServer(peerConnectionA.localDescription);
-});
-
-// Xử lý ICE candidates
-peerConnectionA.onicecandidate = function(event) {
-  if (event.candidate) {
-    // Gửi ICE candidate đến Client B qua signaling server (cần phải có)
-    sendToSignalingServer(event.candidate);
-  }
-};
-
-// Trên Client B
-const peerConnectionB = new RTCPeerConnection();
-
-peerConnectionB.ondatachannel = function(event) {
-  const dataChannelB = event.channel;
-
-  dataChannelB.onmessage = function(event) {
-    console.log('Received message from Client A:', event.data);
-  };
-
-  dataChannelB.onopen = function(event) {
-    dataChannelB.send('Hello from Client B!');
-  };
-};
-
-// Nhận offer từ Client A và tạo answer
-peerConnectionB.onicecandidate = function(event) {
-  if (event.candidate) {
-    // Gửi ICE candidate đến Client A qua signaling server (cần phải có)
-    sendToSignalingServer(event.candidate);
-  }
-};
-
-// Hàm giả lập để gửi dữ liệu đến signaling server
-function sendToSignalingServer(data) {
-  // Gửi dữ liệu đến signaling server để truyền đến client khác
-}
-*/
