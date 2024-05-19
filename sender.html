@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Form Thông Tin WebSocket</title>
+<title>Sender</title>
 <script>
 // Khi window tải xong, chúng ta sẽ thiết lập WebSocket
 window.onload = function() {
@@ -25,7 +25,11 @@ window.onload = function() {
         'Reward: ' + message.content.reward;
     }
     if(message.type === 'returnWallet')
+    {
+      console.log(message.type);
+      console.log(message.balance);
       document.getElementById('balance').innerHTML = 'Balance: ' + message.balance;
+    }
   };
   // Gắn sự kiện khi form được submit
   document.getElementById('infoForm').onsubmit = function(event) {
@@ -71,7 +75,7 @@ window.onload = function() {
 </head>
 <body>
 
-<h2>Form Nhập Thông Tin qua WebSocket</h2>
+<h2>Form Nhập Thông Tin Task</h2>
 
 <form id="infoForm">
   <label for="creator">Creator:</label><br>
@@ -88,7 +92,7 @@ window.onload = function() {
 <h3>Task đã được thực hiện</h3>
 <div id="display"></div>
 
-<form id="walletForm"">
+<form id="walletForm">
   <label for="address">Adress:</label><br>
   <input type="text" id="address" name="address"><br>
   <input type="submit" value="Submit">

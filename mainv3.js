@@ -4,6 +4,7 @@ const prompt = require('prompt-sync')();
 const { TaskContract } = require("./sc");
 const WebSocket = require('ws');
 const fs = require('fs');
+const fs_ = require('fs').promises;
 class Server {
   constructor(){
     this.Tcoin;
@@ -54,25 +55,15 @@ class Server {
     this.mapWallet[creator].balance -= amount;
     this.mapWallet[assignee].balance += parseInt(amount);
   }
-  getBalance(address){
-    // if(address in this.mapWallet)
-    //   return this.mapWallet[address].balance;
-    // else
-    //   return 0;
-    fs.readFile('wallet.json', 'utf8', (err, data) => {
-      if (err) {
-        console.error('Lỗi khi đọc file:', err);
-        return;
-      }
-      if(data)
-        {
-          const _data = JSON.parse(data);
-          console.log(_data[address].balance);
-          return _data[address].balance;
-        }
-      else
-        return 0;
-    });
+  async getBalance(address) {
+    try {
+      const data = await fs_.readFile('wallet.json', 'utf8');
+      const _data = JSON.parse(data);
+      return _data[address] ? _data[address].balance : 0;
+    } catch (err) {
+      console.error('Lỗi khi đọc file:', err);
+      return 0;
+    }
   }
   saveWallet()
   {
@@ -131,8 +122,6 @@ server.loadData();
 const sc = new TaskContract();
 sc.LoadData();
 var ID;
-//
-///////////
 
 // Tạo một WebSocket Server trên port 3000
 const wssS = new WebSocket.Server({ port: 3000 });
@@ -144,16 +133,19 @@ wssS.on('connection', function connection(ws) {
 
     // Chuyển đổi chuỗi JSON thành đối tượng JavaScript
     try {
-      const data = JSON.parse(message);
+      var data = JSON.parse(message);
       // Bây giờ bạn có thể truy cập các thuộc tính của đối tượng data
       if(data.type === 'sendTask')
         sc.createTask(data.content.creator,data.content.description,data.content.difficult,data.content.reward);
       if(data.type === 'checkWallet')
         {
-          var data_ = JSON.stringify({type:'returnWallet',balance: server.getBalance(data.address)
-          });
-          ws.send(data_);
-        }     
+          (async () => {
+            const balance = await server.getBalance(data.address);
+            var data_ = JSON.stringify({type:'returnWallet', balance: balance});
+            ws.send(data_);
+          })();
+          
+        }
 
     } catch (e) {
       console.error('Error parsing message', e);
@@ -162,26 +154,22 @@ wssS.on('connection', function connection(ws) {
 });
 wssR.on('connection', function connection(ws) {
   console.log('Receiver connected');
-  var data = JSON.stringify({type: 'sendtask', content: sc.tasks[0]});
+  // var data = JSON.stringify({type: 'sendtask', content: sc.tasks[0]});
+  var data = JSON.stringify({type: 'sendtask', content: sc.tasks});
   ws.send(data);
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
 
     // Chuyển đổi chuỗi JSON thành đối tượng JavaScript
     try {
-      const data = JSON.parse(message);
+      var data = JSON.parse(message);
       if(data.type === 'acceptTask')
       // Bây giờ bạn có thể truy cập các thuộc tính của đối tượng data
       {
         ID = data.content.id;
         sc.assignTask(data.content.id, data.content.assignee,sc.tasks[data.content.id].creator);
         sc.acceptTask(sc.tasks[ID].id,data.content.solution,sc.tasks[ID].assignee);
-        //
-        // server.addmapWallet(sc.tasks[ID].creator);
-        // server.generateWallet(100);
-        // server.addmapWallet(sc.tasks[ID].assignee);
-        // server.generateWallet(100);
-
+        
         server.addmapWallet(sc.tasks[ID].creator,100);
         server.addmapWallet(sc.tasks[ID].assignee,100);
 
@@ -203,9 +191,11 @@ wssR.on('connection', function connection(ws) {
       }
       if(data.type === 'checkWallet')
         {
-          var _data = JSON.stringify({type:'returnWallet',balance: server.getBalance(data.address)
-          });
-          ws.send(_data);
+          (async () => {
+            const balance = await server.getBalance(data.address);
+            var data_ = JSON.stringify({type:'returnWallet', balance: balance});
+            ws.send(data_);
+          })();
         }
 
     } catch (e) {

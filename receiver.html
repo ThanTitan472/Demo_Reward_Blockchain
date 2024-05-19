@@ -2,7 +2,19 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Hiển Thị Thông Tin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  .grid-container {
+    display: grid;
+    grid-template-columns: auto auto; 
+    gap: 10px; 
+  }
+  .grid-item {
+    border: 1px solid #ccc; 
+    padding: 10px; 
+  }
+</style>
+<title>Receiver</title>
 <script>
 window.onload = function() {
   const ws = new WebSocket('ws://localhost:3001');
@@ -14,26 +26,24 @@ window.onload = function() {
     var message = JSON.parse(event.data);
     if(message.type === 'sendtask')
     {
-      document.getElementById('display').innerHTML =
-        'ID: ' + message.content.id + '<br>'
-        +
-        'Creator: ' + message.content.creator + '<br>' +
-        'Description: ' + message.content.description + '<br>' +
-        'Difficult: ' + message.content.diff + '<br>' +
-        'Reward: ' + message.content.reward;
-    //     message.content.forEach(function(task) {
-    //   var taskDiv = document.createElement('div');
-    //   taskDiv.innerHTML = 
-    //     'ID Task: ' + task.id + '<br>' +
-    //     'Creator: ' + task.creator + '<br>' +
-    //     'Description: ' + task.description + '<br>' +
-    //     'Difficult: ' + task.diff + '<br>' +
-    //     'Reward: ' + task.reward;
-    //   displayDiv.appendChild(taskDiv);
-    // });
+      var grid = document.getElementById('dataGrid');
+      for (let index = 0; index < Object.keys(message.content).length; index++) {
+        var task = message.content[index.toString()];
+        var div = document.createElement('div');
+        div.className = 'grid-item';
+        div.innerHTML = 'ID: ' + task.id + '<br>' +
+        'Creator: ' + task.creator + '<br>' +
+        'Description: ' + task.description + '<br>' +
+        'Difficult: ' + task.diff + '<br>' +
+        'Reward: ' + task.reward + '<br>' +
+        'Status: ' + task.status;
+        grid.appendChild(div);
+      }
     }
     if(message.type === 'returnWallet')
     {
+      console.log(message.type);
+      console.log(message.balance);
       document.getElementById('balance').innerHTML = 'Balance: ' + message.balance;
     }
   };
@@ -44,14 +54,6 @@ window.onload = function() {
     var assignee = document.getElementById('assignee').value;
     var solution = document.getElementById('solution').value;
 
-    // var data = {
-    //   type: 'response',
-    //   content: {
-    //     idTask: id,
-    //     assignee: assignee,
-    //     solution: solution
-    //   }
-    // };
     var data = {
       type: 'acceptTask',
       content : 
@@ -81,10 +83,10 @@ window.onload = function() {
 </head>
 <body>
 
-<h2>Thông Tin Được Nhận qua WebSocket</h2>
-<div id="display"></div>
+<h2>Thông Tin Task Nhận Được</h2>
+<div id="dataGrid" class="grid-container"></div>
 
-<h2>Form Phản Hồi Thông Tin</h2>
+<h2>Form Nhập Thông Tin Task</h2>
 
 <form id="responseForm">
   <label for="id">ID Task:</label><br>
@@ -96,7 +98,7 @@ window.onload = function() {
   <input type="submit" value="Submit">
 </form>
 
-<form id="walletForm"">
+<form id="walletForm">
   <label for="address">Adress:</label><br>
   <input type="text" id="address" name="address"><br>
   <input type="submit" value="Submit">

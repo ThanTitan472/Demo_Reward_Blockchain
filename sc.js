@@ -88,7 +88,7 @@ class TaskContract {
 			if (task.reward > balancecreator) { 
 					throw new Error("Insufficient balance in contract");
 			}
-
+			task.status = 3;
 			// Giả định việc chuyển tiền
 			console.log(`TaskPaid: ${taskId}, ${task.assignee} nhan duoc ${task.reward}`);
 	}
@@ -103,24 +103,3 @@ class TaskContract {
 	}
 }
 module.exports.TaskContract = TaskContract;
-function sendTask(task){
-	localStorage.setItem('Task',task);
-}
-function reciveTask(){
-	window.addEventListener('storage', function(event) {
-    if (event.key === 'Task') {
-        console.log('Task: ' + event.newValue);
-		}
-	});
-}
-function sendResponse(response)
-{
-	localStorage.setItem('Response',response);
-}
-function reviceResponse(){
-	window.addEventListener('storage', function(event) {
-    if (event.key === 'Response') {
-        console.log('Response: ' + event.newValue);
-		}
-	});
-}
